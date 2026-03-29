@@ -1,234 +1,181 @@
 <!DOCTYPE html>
 
-<html lang="id">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>JCMyPhone System</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<title>JCMyPhone System</title>
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100 flex items-center justify-center min-h-screen px-4">
+<body class="bg-gray-100 flex items-center justify-center h-screen">
 
-<div class="bg-white w-full max-w-md rounded-3xl shadow-xl p-6">
+<div class="bg-white p-6 rounded-xl shadow w-96">
 
-  <h1 class="text-3xl font-bold text-center mb-5">JCMyPhone</h1>
+<h1 class="text-xl font-bold text-center mb-4">JCMyPhone System</h1>
 
-  <!-- LOGIN -->
+<!-- LOGIN -->
 
-  <div id="login">
-    <input id="pin" type="password" placeholder="Masukkan PIN"
-    class="border p-4 text-lg rounded-xl w-full mb-4"/>
+<div id="login">
+  <input id="pin" type="password" placeholder="Masukkan PIN"
+  class="border p-2 w-full mb-3 rounded"/>
 
-```
 <button onclick="login()"
-class="bg-black text-white w-full py-4 text-lg rounded-xl">
-Masuk
-</button>
-```
+class="bg-black text-white w-full py-2 rounded">
+Masuk </button>
 
-  </div>
-
-  <!-- APP -->
-
-  <div id="app" style="display:none;">
-
-```
-<div id="welcome" class="text-center text-lg font-semibold mb-4"></div>
-
-<!-- MODE -->
-<div class="flex gap-2 mb-4">
-  <button onclick="setMode('encode')" id="btnEncode"
-  class="flex-1 py-3 text-lg rounded-xl bg-black text-white">Encode</button>
-
-  <button onclick="setMode('decode')" id="btnDecode"
-  class="flex-1 py-3 text-lg rounded-xl bg-gray-300">Decode</button>
 </div>
 
-<!-- INPUT -->
-<input id="input" placeholder="Input harga / kode"
-class="border p-4 text-lg rounded-xl w-full mb-4"/>
+<!-- APP -->
 
-<!-- BUTTON -->
-<button onclick="process()"
-class="bg-black text-white w-full py-4 text-lg rounded-xl">
-Proses
-</button>
+<div id="app" style="display:none;">
 
-<!-- RESULT -->
-<div id="result" class="mt-5 text-center text-2xl font-bold"></div>
+  <div class="flex justify-between items-center mb-3">
+    <div id="welcome" class="font-semibold"></div>
+    <button onclick="logout()"
+    class="text-sm bg-red-500 text-white px-3 py-1 rounded">
+    Logout
+    </button>
+  </div>
 
-<!-- STEPS OWNER -->
-<pre id="steps"
-class="mt-4 text-sm bg-gray-100 p-4 rounded-xl whitespace-pre-line"></pre>
+  <div class="flex gap-2 mb-4">
+    <button onclick="setMode('encode')" id="btnEncode"
+    class="flex-1 bg-black text-white py-2 rounded">Encode</button>
 
-<!-- LOGOUT -->
-<button onclick="logout()"
-class="mt-4 w-full bg-red-500 text-white py-3 rounded-xl">
-Logout
-</button>
+```
+<button onclick="setMode('decode')" id="btnDecode"
+class="flex-1 bg-gray-300 py-2 rounded">Decode</button>
 ```
 
   </div>
+
+<input id="input" placeholder="Input..."
+class="border p-2 w-full mb-3 rounded"/>
+
+<button onclick="process()"
+class="bg-black text-white w-full py-2 rounded">
+Proses </button>
+
+  <div id="result" class="mt-4 text-center font-bold text-lg"></div>
+
+  <pre id="steps"
+  class="mt-4 text-sm bg-gray-100 p-3 rounded whitespace-pre-line"></pre>
+
+</div>
 
 </div>
 
 <script>
 
-// ================= STATE =================
 let role = "";
 let mode = "encode";
 
-// ================= UTIL =================
-function mod10(n){
-  return ((n % 10) + 10) % 10;
-}
+function mod10(n){ return ((n%10)+10)%10 }
 
-// ================= MAPPING =================
-const map = {
-  D:1,Y:2,C:3,A:4,M:5,E:6,R:7,S:8,O:9,N:0
-};
+const map = {D:1,Y:2,C:3,A:4,M:5,E:6,R:7,S:8,O:9,N:0};
+const reverseMap = Object.fromEntries(Object.entries(map).map(([k,v])=>[v,k]));
 
-const reverseMap = Object.fromEntries(
-  Object.entries(map).map(([k,v]) => [v,k])
-);
-
-// ================= LOGIN =================
 function login(){
   let pin = document.getElementById("pin").value;
 
-  if(pin === "1818"){
-    role = "owner";
-    document.getElementById("welcome").innerText = "Welcome Admin VIP";
+  if(pin=="1818"){
+    role="owner";
+    document.getElementById("welcome").innerText="Welcome Admin VIP";
   }
-  else if(pin === "0000"){
-    role = "guest";
-    document.getElementById("welcome").innerText = "Welcome Guest Reguler";
+  else if(pin=="0000"){
+    role="guest";
+    document.getElementById("welcome").innerText="Welcome Guest Reguler";
   }
   else{
     alert("PIN Salah");
     return;
   }
 
-  document.getElementById("login").style.display = "none";
-  document.getElementById("app").style.display = "block";
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="block";
 }
 
-// ================= LOGOUT =================
 function logout(){
-  role = "";
-  document.getElementById("login").style.display = "block";
-  document.getElementById("app").style.display = "none";
-  document.getElementById("input").value = "";
-  document.getElementById("result").innerText = "";
-  document.getElementById("steps").innerText = "";
+  role="";
+  document.getElementById("login").style.display="block";
+  document.getElementById("app").style.display="none";
+  document.getElementById("input").value="";
+  document.getElementById("result").innerText="";
+  document.getElementById("steps").innerText="";
 }
 
-// ================= MODE =================
 function setMode(m){
-  mode = m;
+  mode=m;
 
   document.getElementById("btnEncode").className =
-    m === "encode"
-    ? "flex-1 py-3 text-lg rounded-xl bg-black text-white"
-    : "flex-1 py-3 text-lg rounded-xl bg-gray-300";
+    m==="encode" ? "flex-1 bg-black text-white py-2 rounded" : "flex-1 bg-gray-300 py-2 rounded";
 
   document.getElementById("btnDecode").className =
-    m === "decode"
-    ? "flex-1 py-3 text-lg rounded-xl bg-black text-white"
-    : "flex-1 py-3 text-lg rounded-xl bg-gray-300";
+    m==="decode" ? "flex-1 bg-black text-white py-2 rounded" : "flex-1 bg-gray-300 py-2 rounded";
 }
 
-// ================= ENCODE =================
 function encode(price){
+  let digits=price.replace(/[^0-9]/g,"").split("").map(Number);
 
-  let digits = price.replace(/[^0-9]/g,"").split("").map(Number);
+  if(digits.length<2) return {result:"",steps:""};
 
-  if(digits.length < 2){
-    return {result:"", steps:""};
-  }
+  let key=digits[1];
+  let originalKey=key;
+  if(key===0) key=2;
 
-  let key = digits[1];
-  let originalKey = key;
+  let zeroStreak=0;
+  let steps="=== PROSES ENCODE ===\n";
+  steps+="Key: "+originalKey+(originalKey===0?" → 2":"")+"\n\n";
 
-  if(key === 0) key = 2;
+  let result=digits.map((d,i)=>{
+    if(i===1) return d;
 
-  let zeroStreak = 0;
-
-  let steps = "=== PROSES ENCODE ===\n";
-  steps += "Key: " + originalKey + (originalKey===0 ? " → 2" : "") + "\n\n";
-
-  let result = digits.map((d,i)=>{
-
-    if(i === 1) return d;
-
-    // RULE 000 (berbasis key)
-    if(d === 0 && i > 1){
-      let val = mod10(0 - (key + (zeroStreak * 2)));
-
-      steps += "Digit " + (i+1) +
-      ": 0 - (" + key + "+" + (zeroStreak*2) + ") = " + val + "\n";
-
+    if(d===0 && i>1){
+      let val=mod10(0-(key+(zeroStreak*2)));
+      steps+=`Digit ${i+1}: 0 - (${key}+${zeroStreak*2}) = ${val}\n`;
       zeroStreak++;
       return val;
+    } else {
+      zeroStreak=0;
+      let val=mod10(d-key);
+      steps+=`Digit ${i+1}: ${d} - ${key} = ${val}\n`;
+      return val;
     }
-
-    // NORMAL
-    zeroStreak = 0;
-    let val = mod10(d - key);
-
-    steps += "Digit " + (i+1) +
-    ": " + d + " - " + key + " = " + val + "\n";
-
-    return val;
   });
 
   return {
-    result: result.map(d => reverseMap[d]).join(""),
+    result: result.map(d=>reverseMap[d]).join(""),
     steps
   };
 }
 
-// ================= DECODE =================
 function decode(code){
+  let digits=code.toUpperCase().split("").map(l=>map[l]);
 
-  let digits = code.toUpperCase().split("").map(l => map[l]);
+  if(digits.length<2) return {result:"",steps:""};
 
-  if(digits.length < 2){
-    return {result:"", steps:""};
-  }
+  let key=digits[1];
+  let originalKey=key;
+  if(key===0) key=2;
 
-  let key = digits[1];
-  let originalKey = key;
+  let zeroStreak=0;
+  let steps="=== PROSES DECODE ===\n";
+  steps+="Key: "+originalKey+(originalKey===0?" → 2":"")+"\n\n";
 
-  if(key === 0) key = 2;
+  let result=digits.map((d,i)=>{
+    if(i===1) return d;
 
-  let zeroStreak = 0;
+    let expected=mod10(0-(key+(zeroStreak*2)));
 
-  let steps = "=== PROSES DECODE ===\n";
-  steps += "Key: " + originalKey + (originalKey===0 ? " → 2" : "") + "\n\n";
-
-  let result = digits.map((d,i)=>{
-
-    if(i === 1) return d;
-
-    let expected = mod10(0 - (key + (zeroStreak * 2)));
-
-    // DETEKSI 000
-    if(i > 1 && d === expected){
-      steps += "Digit " + (i+1) + ": pola 0\n";
+    if(i>1 && d===expected){
+      steps+=`Digit ${i+1}: pola 0\n`;
       zeroStreak++;
       return 0;
+    } else {
+      zeroStreak=0;
+      let val=mod10(d+key);
+      steps+=`Digit ${i+1}: ${d}+${key}=${val}\n`;
+      return val;
     }
-
-    // NORMAL
-    zeroStreak = 0;
-    let val = mod10(d + key);
-
-    steps += "Digit " + (i+1) +
-    ": " + d + " + " + key + " = " + val + "\n";
-
-    return val;
   });
 
   return {
@@ -237,10 +184,8 @@ function decode(code){
   };
 }
 
-// ================= PROCESS =================
 function process(){
-
-  let input = document.getElementById("input").value;
+  let input=document.getElementById("input").value;
 
   if(!input){
     alert("Input dulu");
@@ -249,18 +194,18 @@ function process(){
 
   let res;
 
-  if(mode === "encode"){
-    res = encode(input);
+  if(mode==="encode"){
+    res=encode(input);
   } else {
-    res = decode(input);
+    res=decode(input);
   }
 
-  document.getElementById("result").innerText = res.result;
+  document.getElementById("result").innerText=res.result;
 
-  if(role === "owner"){
-    document.getElementById("steps").innerText = res.steps;
+  if(role==="owner"){
+    document.getElementById("steps").innerText=res.steps;
   } else {
-    document.getElementById("steps").innerText = "";
+    document.getElementById("steps").innerText="";
   }
 }
 
