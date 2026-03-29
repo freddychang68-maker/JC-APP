@@ -7,9 +7,9 @@
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100 flex items-center justify-center h-screen">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen px-4">
 
-<div class="bg-white p-6 rounded-xl shadow w-96">
+<div class="bg-white p-6 rounded-xl shadow w-full max-w-md">
 
 <h1 class="text-xl font-bold text-center mb-4">JCMyPhone System</h1>
 
@@ -17,10 +17,10 @@
 
 <div id="login">
   <input id="pin" type="password" placeholder="Masukkan PIN"
-  class="border p-2 w-full mb-3 rounded"/>
+  class="border p-4 text-lg w-full mb-3 rounded"/>
 
 <button onclick="login()"
-class="bg-black text-white w-full py-2 rounded">
+class="bg-black text-white w-full p-4 text-lg rounded">
 Masuk </button>
 
 </div>
