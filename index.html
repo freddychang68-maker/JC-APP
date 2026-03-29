@@ -1,219 +1,215 @@
-import { useState } from "react";
+<!DOCTYPE html>
 
-function mod10(n) {
-  return ((n % 10) + 10) % 10;
+<html>
+<head>
+<meta charset="UTF-8">
+<title>JCMyPhone System</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+
+<div class="bg-white p-6 rounded-xl shadow w-96">
+
+<h1 class="text-xl font-bold text-center mb-4">JCMyPhone System</h1>
+
+<!-- LOGIN -->
+
+<div id="login">
+  <input id="pin" type="password" placeholder="Masukkan PIN"
+  class="border p-2 w-full mb-3 rounded"/>
+
+<button onclick="login()"
+class="bg-black text-white w-full py-2 rounded">
+Masuk </button>
+
+</div>
+
+<!-- APP -->
+
+<div id="app" style="display:none;">
+
+  <div class="flex justify-between items-center mb-3">
+    <div id="welcome" class="font-semibold"></div>
+    <button onclick="logout()"
+    class="text-sm bg-red-500 text-white px-3 py-1 rounded">
+    Logout
+    </button>
+  </div>
+
+  <div class="flex gap-2 mb-4">
+    <button onclick="setMode('encode')" id="btnEncode"
+    class="flex-1 bg-black text-white py-2 rounded">Encode</button>
+
+```
+<button onclick="setMode('decode')" id="btnDecode"
+class="flex-1 bg-gray-300 py-2 rounded">Decode</button>
+```
+
+  </div>
+
+<input id="input" placeholder="Input..."
+class="border p-2 w-full mb-3 rounded"/>
+
+<button onclick="process()"
+class="bg-black text-white w-full py-2 rounded">
+Proses </button>
+
+  <div id="result" class="mt-4 text-center font-bold text-lg"></div>
+
+  <pre id="steps"
+  class="mt-4 text-sm bg-gray-100 p-3 rounded whitespace-pre-line"></pre>
+
+</div>
+
+</div>
+
+<script>
+
+let role = "";
+let mode = "encode";
+
+function mod10(n){ return ((n%10)+10)%10 }
+
+const map = {D:1,Y:2,C:3,A:4,M:5,E:6,R:7,S:8,O:9,N:0};
+const reverseMap = Object.fromEntries(Object.entries(map).map(([k,v])=>[v,k]));
+
+function login(){
+  let pin = document.getElementById("pin").value;
+
+  if(pin=="1818"){
+    role="owner";
+    document.getElementById("welcome").innerText="Welcome Admin VIP";
+  }
+  else if(pin=="0000"){
+    role="guest";
+    document.getElementById("welcome").innerText="Welcome Guest Reguler";
+  }
+  else{
+    alert("PIN Salah");
+    return;
+  }
+
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="block";
 }
 
-const map = {
-  D:1,Y:2,C:3,A:4,M:5,E:6,R:7,S:8,O:9,N:0
-};
+function logout(){
+  role="";
+  document.getElementById("login").style.display="block";
+  document.getElementById("app").style.display="none";
+  document.getElementById("input").value="";
+  document.getElementById("result").innerText="";
+  document.getElementById("steps").innerText="";
+}
 
-const reverseMap = Object.fromEntries(
-  Object.entries(map).map(([k,v]) => [v,k])
-);
+function setMode(m){
+  mode=m;
+
+  document.getElementById("btnEncode").className =
+    m==="encode" ? "flex-1 bg-black text-white py-2 rounded" : "flex-1 bg-gray-300 py-2 rounded";
+
+  document.getElementById("btnDecode").className =
+    m==="decode" ? "flex-1 bg-black text-white py-2 rounded" : "flex-1 bg-gray-300 py-2 rounded";
+}
 
 function encode(price){
-  const digits = price.replace(/[^0-9]/g,'').split('').map(Number);
-  if(digits.length<2) return {result:'', steps:''};
+  let digits=price.replace(/[^0-9]/g,"").split("").map(Number);
 
-  let key = digits[1];
-  let originalKey = key;
+  if(digits.length<2) return {result:"",steps:""};
+
+  let key=digits[1];
+  let originalKey=key;
   if(key===0) key=2;
 
   let zeroStreak=0;
-  let steps = "=== PROSES ENCODE ===\n";
-  steps += `[KEY = ${originalKey}${originalKey===0?' → 2':''}]\n`;
-  steps += `Key diambil dari digit ke-2\n\n`;
+  let steps="=== PROSES ENCODE ===\n";
+  steps+="Key: "+originalKey+(originalKey===0?" → 2":"")+"\n\n";
 
-  const result = digits.map((d,i)=>{
+  let result=digits.map((d,i)=>{
     if(i===1) return d;
 
     if(d===0 && i>1){
-      // RULE BARU: 0 - (key + progresif +2)
-      let val = mod10(0 - (key + (zeroStreak*2)));
-      steps += `Digit ke-${i+1}: 0 - (${key} + ${zeroStreak*2}) = ${val}\n`;
+      let val=mod10(0-(key+(zeroStreak*2)));
+      steps+=`Digit ${i+1}: 0 - (${key}+${zeroStreak*2}) = ${val}\n`;
       zeroStreak++;
       return val;
     } else {
       zeroStreak=0;
-      let val = mod10(d-key);
-      steps += `Digit ke-${i+1}: ${d} - ${key} = ${val}\n`;
+      let val=mod10(d-key);
+      steps+=`Digit ${i+1}: ${d} - ${key} = ${val}\n`;
       return val;
     }
   });
 
   return {
-    result: result.map(d=>reverseMap[d]).join(''),
+    result: result.map(d=>reverseMap[d]).join(""),
     steps
   };
 }
 
 function decode(code){
-  const digits = code.toUpperCase().split('').map(l=>map[l]);
-  if(digits.length<2) return {result:'', steps:''};
+  let digits=code.toUpperCase().split("").map(l=>map[l]);
 
-  let key = digits[1];
-  let originalKey = key;
+  if(digits.length<2) return {result:"",steps:""};
+
+  let key=digits[1];
+  let originalKey=key;
   if(key===0) key=2;
 
   let zeroStreak=0;
-  let steps = "=== PROSES DECODE ===\n";
-  steps += `[KEY = ${originalKey}${originalKey===0?' → 2':''}]\n`;
-  steps += `Key diambil dari digit ke-2\n\n`;
+  let steps="=== PROSES DECODE ===\n";
+  steps+="Key: "+originalKey+(originalKey===0?" → 2":"")+"\n\n";
 
-  const result = digits.map((d,i)=>{
+  let result=digits.map((d,i)=>{
     if(i===1) return d;
 
-    // deteksi pola hasil encode dari 0
-    let expectedZero = mod10(0 - (key + (zeroStreak*2)));
+    let expected=mod10(0-(key+(zeroStreak*2)));
 
-    if(i>1 && d === expectedZero){
-      steps += `Digit ke-${i+1}: cocok pola 0 → dikembalikan ke 0\n`;
+    if(i>1 && d===expected){
+      steps+=`Digit ${i+1}: pola 0\n`;
       zeroStreak++;
       return 0;
     } else {
       zeroStreak=0;
-      let val = mod10(d+key);
-      steps += `Digit ke-${i+1}: ${d} + ${key} = ${val}\n`;
+      let val=mod10(d+key);
+      steps+=`Digit ${i+1}: ${d}+${key}=${val}\n`;
       return val;
     }
   });
 
-  return {result: result.join(''), steps};
+  return {
+    result: result.join(""),
+    steps
+  };
 }
 
-export default function App() {
-  const [price,setPrice]=useState("");
-  const [code,setCode]=useState("");
-  const [result,setResult]=useState("");
-  const [steps,setSteps]=useState("");
-  const [mode,setMode]=useState("encode");
-  const [pin,setPin]=useState("");
-  const [role,setRole]=useState("");
+function process(){
+  let input=document.getElementById("input").value;
 
-  const handleLogin = () => {
-    if(pin==="1818"){
-      setRole("owner");
-    } else if(pin==="0000"){
-      setRole("guest");
-    } else {
-      alert("PIN Salah");
-    }
-  };
+  if(!input){
+    alert("Input dulu");
+    return;
+  }
 
-  const handleLogout = () => {
-    setRole("");
-    setPin("");
-    setResult("");
-    setSteps("");
-    setPrice("");
-    setCode("");
-    setMode("encode");
-  };
+  let res;
 
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-100">
-      <div className="bg-white p-6 rounded-2xl shadow-md w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">JCMyPhone System</h1>
-          {role && (
-            <button
-              onClick={handleLogout}
-              className="text-sm bg-red-500 text-white px-3 py-1 rounded"
-            >
-              Logout
-            </button>
-          )}
-        </div>
+  if(mode==="encode"){
+    res=encode(input);
+  } else {
+    res=decode(input);
+  }
 
-        {!role && (
-          <>
-            <input
-              type="password"
-              placeholder="Masukkan PIN"
-              value={pin}
-              onChange={(e)=>setPin(e.target.value)}
-              className="border p-2 rounded w-full mb-3"
-            />
-            <button
-              onClick={handleLogin}
-              className="bg-black text-white w-full py-2 rounded"
-            >
-              Masuk
-            </button>
-          </>
-        )}
+  document.getElementById("result").innerText=res.result;
 
-        {role && (
-          <>
-            <div className="text-center mb-3 font-semibold">
-              {role==="owner" ? "Welcome Admin VIP" : "Welcome Guest Reguler"}
-            </div>
-
-            <div className="flex gap-2 mb-4">
-              <button
-                onClick={()=>setMode("encode")}
-                className={`flex-1 py-2 rounded ${mode==='encode'?'bg-black text-white':'bg-gray-300'}`}
-              >Encode</button>
-              <button
-                onClick={()=>setMode("decode")}
-                className={`flex-1 py-2 rounded ${mode==='decode'?'bg-black text-white':'bg-gray-300'}`}
-              >Decode</button>
-            </div>
-
-            {mode==='encode' && (
-              <>
-                <input
-                  placeholder="Input harga"
-                  value={price}
-                  onChange={(e)=>setPrice(e.target.value)}
-                  className="border p-2 rounded w-full mb-3"
-                />
-                <button
-                  onClick={()=>{
-                    const res = encode(price);
-                    setResult(res.result);
-                    if(role==="owner") setSteps(res.steps);
-                    else setSteps("");
-                  }}
-                  className="bg-black text-white w-full py-2 rounded"
-                >Generate Code</button>
-              </>
-            )}
-
-            {mode==='decode' && (
-              <>
-                <input
-                  placeholder="Input kode"
-                  value={code}
-                  onChange={(e)=>setCode(e.target.value)}
-                  className="border p-2 rounded w-full mb-3"
-                />
-                <button
-                  onClick={()=>{
-                    const res = decode(code);
-                    setResult(res.result);
-                    if(role==="owner") setSteps(res.steps);
-                    else setSteps("");
-                  }}
-                  className="bg-black text-white w-full py-2 rounded"
-                >Decode</button>
-              </>
-            )}
-
-            <div className="mt-4 text-center text-lg font-semibold">
-              Hasil: {result}
-            </div>
-
-            {role==="owner" && steps && (
-              <div className="mt-4 text-sm bg-gray-100 p-3 rounded whitespace-pre-line">
-                {steps}
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
-  );
+  if(role==="owner"){
+    document.getElementById("steps").innerText=res.steps;
+  } else {
+    document.getElementById("steps").innerText="";
+  }
 }
 
+</script>
+
+</body>
+</html>
