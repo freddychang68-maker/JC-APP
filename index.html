@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+<title>JCMyPhone System</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+
+<div class="bg-white p-6 rounded-xl shadow w-96">
+
+<h1 class="text-xl font-bold text-center mb-4">JCMyPhone System</h1>
+
+<!-- LOGIN -->
+
+<div id="login">
+  <input id="pin" type="password" placeholder="Masukkan PIN"
+  class="border p-2 w-full mb-3 rounded"/>
+
+<button onclick="login()"
+class="bg-black text-white w-full py-2 rounded">
+Masuk </button>
+
+</div>
+
+<!-- APP -->
+
+<div id="app" style="display:none;">
+
+  <div class="flex justify-between items-center mb-3">
+    <div id="welcome" class="font-semibold"></div>
+    <button onclick="logout()"
+    class="text-sm bg-red-500 text-white px-3 py-1 rounded">
+    Logout
+    </button>
+  </div>
+
+  <div class="flex gap-2 mb-4">
+    <button onclick="setMode('encode')" id="btnEncode"
+    class="flex-1 bg-black text-white py-2 rounded">Encode</button>
+
+```
+<button onclick="setMode('decode')" id="btnDecode"
+class="flex-1 bg-gray-300 py-2 rounded">Decode</button>
+```
+
+  </div>
+
+<input id="input" placeholder="Input..."
+class="border p-2 w-full mb-3 rounded"/>
+
+<button onclick="process()"
+class="bg-black text-white w-full py-2 rounded">
+Proses </button>
+
+  <div id="result" class="mt-4 text-center font-bold text-lg"></div>
+
+  <pre id="steps"
+  class="mt-4 text-sm bg-gray-100 p-3 rounded whitespace-pre-line"></pre>
+
+</div>
+
+</div>
+
+<script>
+
+let role = "";
+let mode = "encode";
+
+function mod10(n){ return ((n%10)+10)%10 }
+
+const map = {D:1,Y:2,C:3,A:4,M:5,E:6,R:7,S:8,O:9,N:0};
+const reverseMap = Object.fromEntries(Object.entries(map).map(([k,v])=>[v,k]));
+
+function login(){
+  let pin = document.getElementById("pin").value;
+
+  if(pin=="1818"){
+    role="owner";
+    document.getElementById("welcome").innerText="Welcome Admin VIP";
+  }
+  else if(pin=="0000"){
+    role="guest";
+    document.getElementById("welcome").innerText="Welcome Guest Reguler";
+  }
+  else{
+    alert("PIN Salah");
+    return;
+  }
+
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="block";
+}
+
+function logout(){
+  role="";
+  document.getElementById("login").style.display="block";
+  document.getElementById("app").style.display="none";
+  document.getElementById("input").value="";
+  document.getElementById("result").innerText="";
+  document.getElementById("steps").innerText="";
+}
+
+function setMode(m){
+  mode=m;
+
+  document.getElementById("btnEncode").className =
+    m==="encode" ? "flex-1 bg-black text-white py-2 rounded" : "flex-1 bg-gray-300 py-2 rounded";
+
+  document.getElementById("btnDecode").className =
+    m==="decode" ? "flex-1 bg-black text-white py-2 rounded" : "flex-1 bg-gray-300 py-2 rounded";
+}
+
+function encode(price){
+  let digits=price.replace(/[^0-9]/g,"").split("").map(Number);
+
+  if(digits.length<2) return {result:"",steps:""};
+
+  let key=digits[1];
+  let originalKey=key;
+  if(key===0) key=2;
+
+  let zeroStreak=0;
+  let steps="=== PROSES ENCODE ===\n";
+  steps+="Key: "+originalKey+(originalKey===0?" → 2":"")+"\n\n";
+
+  let result=digits.map((d,i)=>{
+    if(i===1) return d;
+
+    if(d===0 && i>1){
+      let val=mod10(0-(key+(zeroStreak*2)));
+      steps+=`Digit ${i+1}: 0 - (${key}+${zeroStreak*2}) = ${val}\n`;
+      zeroStreak++;
+      return val;
+    } else {
+      zeroStreak=0;
+      let val=mod10(d-key);
+      steps+=`Digit ${i+1}: ${d} - ${key} = ${val}\n`;
+      return val;
+    }
+  });
+
+  return {
+    result: result.map(d=>reverseMap[d]).join(""),
+    steps
+  };
+}
+
+function decode(code){
+  let digits=code.toUpperCase().split("").map(l=>map[l]);
+
+  if(digits.length<2) return {result:"",steps:""};
+
+  let key=digits[1];
+  let originalKey=key;
+  if(key===0) key=2;
+
+  let zeroStreak=0;
+  let steps="=== PROSES DECODE ===\n";
+  steps+="Key: "+originalKey+(originalKey===0?" → 2":"")+"\n\n";
+
+  let result=digits.map((d,i)=>{
+    if(i===1) return d;
+
+    let expected=mod10(0-(key+(zeroStreak*2)));
+
+    if(i>1 && d===expected){
+      steps+=`Digit ${i+1}: pola 0\n`;
+      zeroStreak++;
+      return 0;
+    } else {
+      zeroStreak=0;
+      let val=mod10(d+key);
+      steps+=`Digit ${i+1}: ${d}+${key}=${val}\n`;
+      return val;
+    }
+  });
+
+  return {
+    result: result.join(""),
+    steps
+  };
+}
+
+function process(){
+  let input=document.getElementById("input").value;
+
+  if(!input){
+    alert("Input dulu");
+    return;
+  }
+
+  let res;
+
+  if(mode==="encode"){
+    res=encode(input);
+  } else {
+    res=decode(input);
+  }
+
+  document.getElementById("result").innerText=res.result;
+
+  if(role==="owner"){
+    document.getElementById("steps").innerText=res.steps;
+  } else {
+    document.getElementById("steps").innerText="";
+  }
+}
+
+</script>
+
+</body>
+</html>
